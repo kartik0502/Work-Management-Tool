@@ -1,10 +1,24 @@
 import React from 'react'
-import {Form , Input , Button} from 'antd'
+import {Form , Input , Button, message} from 'antd'
 import {Link} from 'react-router-dom'
 import Divider from '../../components/Divider'
+import { loginUser } from '../../apicalls/users'
 
-const onFinish = (values) => {
-  console.log(values)
+const onFinish = async (values) => {
+  try{
+    const response = await loginUser(values);
+    if(response.success){
+      localStorage.setItem('token', response.data)
+      message.success(response.message)
+      window.location.href = '/';
+    }
+    else{
+      throw new Error(response.message)
+    }
+  }
+  catch(err){
+    message.error(err.message)
+  }
 }
 
 function Login() {

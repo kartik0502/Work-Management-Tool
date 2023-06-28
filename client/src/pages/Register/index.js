@@ -1,10 +1,22 @@
 import React from 'react'
-import {Form , Input , Button} from 'antd'
+import {Form , Input , Button, message} from 'antd'
 import {Link} from 'react-router-dom'
 import Divider from '../../components/Divider'
+import {registerUser} from '../../apicalls/users'
 
-const onFinish = (values) => {
-  console.log(values)
+const onFinish = async (values) => {
+  try {
+    const response = await registerUser(values);
+    if (response.success) {
+      message.success(response.message)
+    }
+    else {
+      throw new Error(response.message)
+    }
+  }
+  catch (err) {
+    message.error(err.message)
+  }
 }
 
 function Register() {
