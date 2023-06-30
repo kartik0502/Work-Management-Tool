@@ -21,7 +21,7 @@ input{
   border: 1px solid #acacac !important;
 }
 
-input:focus{
+input:focus, textarea:focus {
   box-shadow: none;
   border: 1px solid #353535;
 }
@@ -32,4 +32,9 @@ input:focus{
 
 .ant-form-item-label {
   padding: 0px;
+}
+
+.custom-input {
+  box-shadow: none !important;
+  border: 1.2px solid #353535 !important;
 }

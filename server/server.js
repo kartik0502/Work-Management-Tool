@@ -6,6 +6,9 @@ require('dotenv').config();
 const db = require('./config/dbconfig');
 
 const userRoute = require('./routes/usersRoute');
+const projectRoute = require('./routes/projectsRoute');
 
 app.use('/api/users', userRoute);
+app.use('/api/projects', projectRoute);
+
 app.listen(port, () => console.log(`Listening on port ${port}`));
