@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export const getAntFormRules = (rules) => {
     let antFormRules = []
     if(rules){
@@ -8,4 +10,8 @@ export const getAntFormRules = (rules) => {
         })
     }
     return antFormRules
+}
+
+export const getDateFormat = (date) => {
+    return moment(date).format('YYYY-MM-DD HH:mm:ss')
 }
