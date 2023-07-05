@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 const Project = require('../models/projectModel');
 const authMiddleware = require('../middlewares/authMiddleware');
+const User = require('../models/userModel');
 
 // create a project
 
@@ -123,3 +124,40 @@ router.post('/delete-project', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+// add a member to a project
+
+router.post('/add-member', authMiddleware, async (req, res) => {
+    try{
+        const { projectId, email, role } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.send({
+                success: false,
+                message: 'User not found!'
+            });
+        }
+    
+        const project = await Project.findByIdAndUpdate(projectId, {
+            $push: {
+                members: {
+                    user: user._id,
+                    role
+                }
+            }
+        });
+
+        res.send({
+            success: true,
+            message: 'Member added successfully',
+            data: project
+        });
+
+    }
+    catch(err){
+        res.send({
+            success: false,
+            message: err.message
+        });
+    }
+});

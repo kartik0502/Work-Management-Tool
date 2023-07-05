@@ -1,5 +1,5 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { getProjectById } from '../../apicalls/projects'
 import { SetLoading } from '../../redux/loadersSlice'
@@ -9,6 +9,8 @@ import Tasks from './Tasks'
 import Members from './Members'
 
 function ProjectInfo() {
+  const {user} = useSelector(state => state.users)
+  const [currentUserRole, setCurrentUserRole] = React.useState('')
   const [project, setProject] = React.useState(null)
   const dispatch = useDispatch()
   const params = useParams()
@@ -23,6 +25,9 @@ function ProjectInfo() {
       dispatch(SetLoading(false))
       if (response.success) {
         setProject(response.data)
+        // set current user role
+        const currentUser = response.data.members.find(member => member.user._id === user._id)
+        setCurrentUserRole(currentUser.role)
         message.success(response.message)
       }
       else {
@@ -54,7 +59,7 @@ function ProjectInfo() {
           <div>
             <div className="flex gap-5">
               <span className="text-gray-600 text-sm font-semibold">
-                Created At
+                Created At :
               </span>
               <span className="text-gray-600 text-sm">
                 {new Date(project.createdAt).toLocaleDateString()}
@@ -62,10 +67,18 @@ function ProjectInfo() {
             </div>
             <div className="flex gap-5">
               <span className="text-gray-600 text-sm font-semibold mt-2">
-                Created By
+                Created By :
               </span>
               <span className="text-gray-600 text-sm mt-2">
                 {project.owner.firstName} {project.owner.lastName}
+              </span>
+            </div>
+            <div className="flex gap-5">
+              <span className="text-gray-600 text-sm font-semibold mt-2">
+                My Role :
+              </span>
+              <span className="text-gray-600 text-sm mt-2 px-5 uppercase">
+                {currentUserRole}
               </span>
             </div>
           </div>
@@ -75,10 +88,10 @@ function ProjectInfo() {
 
       <Tabs defaultActiveKey="1">
         <Tabs.TabPane tab="Tasks" key="1">
-          <Tasks />
+          <Tasks project={project}/>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Members" key="2">
-          <Members project={project}/>
+          <Members project={project} reloadData={fetchProject}/>
         </Tabs.TabPane>
       </Tabs>
 

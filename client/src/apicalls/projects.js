@@ -24,3 +24,7 @@ export const getProjectByRole = async (userId) => {
 export const getProjectById = async (id) => {
     return apiRequest("/api/projects/get-project-by-id", "POST", { id });
 };
+
+export const addMember = async (data) => {
+    return apiRequest("/api/projects/add-member", "POST", data);
+}
