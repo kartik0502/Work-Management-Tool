@@ -3,7 +3,7 @@ import TextArea from 'antd/es/input/TextArea'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { SetLoading } from '../../../redux/loadersSlice'
-import { createTask } from '../../../apicalls/tasks'
+import { createTask, updateTask } from '../../../apicalls/tasks'
 
 function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
     const {user} = useSelector(state => state.users)
@@ -16,6 +16,12 @@ function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
             let response = null;
             dispatch(SetLoading(true))
             if(task){
+                response = await updateTask({
+                    ...values,
+                    taskId: task._id,
+                    projectId: project._id,
+                    assignedTo: task.assignedTo._id,
+                })
             }
             else{
                 const assignedTo = project.members.find(member => member.user.email === email)
@@ -24,8 +30,8 @@ function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
                 const assignedBy = user._id
                 response = await createTask({
                     ...values,
-                    assignedTo: assignedToUserId,
                     assignedBy,
+                    assignedTo: assignedToUserId,
                     projectId: project._id,
                 });
             }
@@ -53,17 +59,20 @@ function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
 
   return (
     <Modal
-    title="ADD TASK"
+    title={task ? 'EDIT TASK' : 'ADD TASK'}
     open={showTaskForm}
     onCancel={() => setShowTaskForm(false)}
-    okText="Add"
+    okText={task ? 'UPDATE' : 'ADD'}
     centered
     onOk={() => {
         formRef.current.submit()
     }}
     >
         <Form layout='vertical'
-        ref={formRef} onFinish={onFinish}
+        ref={formRef} onFinish={onFinish} initialValues={{
+            ...task,
+            assignedTo: task ? task.assignedTo.email : null,
+        }}
         >
             <Form.Item label="Task Name" name="name">
                 <Input name='taskName' placeholder="Task Name" className="px-2 "/>
@@ -75,7 +84,8 @@ function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
 
             <Form.Item label="Assign to" name="assignedTo">
                 <Input name='assignedTo' placeholder="Enter email of the employee" className="px-2"
-                onChange={(e) => setEmail(e.target.value)} />
+                onChange={(e) => setEmail(e.target.value)} 
+                disabled = {task ? true : false}/>
             </Form.Item>
 
             {

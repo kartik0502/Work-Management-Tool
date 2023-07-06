@@ -1,11 +1,35 @@
-import { Button, Table } from 'antd'
+import { Button, Table, message } from 'antd'
 import React from 'react'
 import MemberForm from './MemberForm'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { SetLoading } from '../../../redux/loadersSlice'
+import { removeMember } from '../../../apicalls/projects'
 
 function Members({ project, reloadData }) {
   const [showMemberForm, setShowMemberForm] = React.useState(false)
   const { user } = useSelector(state => state.users)
+  const dispatch = useDispatch();
+  const isOwner = project.owner._id === user._id
+
+  const deleteMember = async (memberId) => {
+    try {
+      dispatch(SetLoading(true))
+      const response = await removeMember({ memberId, projectId: project._id })
+      dispatch(SetLoading(false))
+      if (response.success) {
+        reloadData()
+        message.success(response.message)
+      }
+      else {
+        throw new Error(response.message)
+      }
+    }
+    catch (err) {
+      dispatch(SetLoading(false))
+      message.error(err.message)
+    }
+  }
+
   const columns = [
     {
       title: 'First Name',
@@ -39,18 +63,19 @@ function Members({ project, reloadData }) {
       title: 'Action',
       dataIndex: 'action',
       render: (text, record) => {
-        return <Button className="primary bg-red-500" danger
+        return <Button 
+        className={`primary ${isOwner ? 'bg-red-500' : 'bg-red-200'}`}
           onClick={() => {
-            console.log(record)
+            deleteMember(record._id)
           }}
+          disabled={!isOwner}
         >
-          <span className="text-white">Remove</span>
+          <span className={isOwner ? 'text-white' : 'text-black'}>Remove</span>
         </Button>
       }
     }
   ]
 
-  const isOwner = project.owner._id === user._id
   return (
     <div>
       <div className="flex justify-end">

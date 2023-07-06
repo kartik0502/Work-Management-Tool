@@ -28,3 +28,7 @@ export const getProjectById = async (id) => {
 export const addMember = async (data) => {
     return apiRequest("/api/projects/add-member", "POST", data);
 }
+
+export const removeMember = async (data) => {
+    return apiRequest("/api/projects/remove-member", "POST", data);
+}
