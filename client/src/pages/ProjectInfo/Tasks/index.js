@@ -6,6 +6,7 @@ import { SetLoading } from '../../../redux/loadersSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { getDateFormat } from '../../../utils/helpers'
+import { addNotification } from '../../../apicalls/notifications'
 
 
 function Tasks({ project }) {
@@ -53,17 +54,26 @@ function Tasks({ project }) {
     }
   }
 
-  const onStatusUpdate = async (e, taskId) => {
+  const onStatusUpdate = async ({
+    task,
+    status
+  }) => {
     try {
       dispatch(SetLoading(true))
       const response = await updateTask({
-        taskId,
-        status: e.target.value
+        taskId : task._id,
+        status: status
       })
       dispatch(SetLoading(false))
       if (response.success) {
         getTasks();
         message.success(response.message)
+        addNotification({
+          user: task.assignedBy._id,
+          title: 'Task Status Updated',
+          description: `Task ${task.name} status updated to ${status}`,
+          onclick: `/project/${project._id}`
+        })
       }
     }
     catch (err) {
@@ -116,7 +126,10 @@ function Tasks({ project }) {
         return (
           <select value={record.status}
           onChange={(e) => {
-            onStatusUpdate(e, record._id)
+            onStatusUpdate({
+              task : record,
+              status : e.target.value
+            })
           }}
           disabled = {record.assignedTo._id !== user._id && isEmployee}
           >

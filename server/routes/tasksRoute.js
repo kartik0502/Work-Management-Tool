@@ -43,4 +43,37 @@ router.post('/get-tasks', authMiddleware, async (req, res) => {
     }
 });
 
+// update a task
+router.post('/update-task', authMiddleware, async (req, res) => {
+    try{
+        await Task.findByIdAndUpdate(req.body.taskId, req.body);
+        res.send({
+            success: true,
+            message: 'Task updated successfully'
+        });
+    }
+    catch(err){
+        res.send({
+            success: false,
+            message: err.message
+        });
+    }
+});
+
+// delete a task
+router.post('/delete-task', authMiddleware, async (req, res) => {
+    try{
+        await Task.findByIdAndDelete(req.body.taskId);
+        res.send({
+            success: true,
+            message: 'Task deleted successfully'
+        });
+    }
+    catch(err){
+        res.send({
+            success: false,
+            message: err.message
+        });
+    }
+});
 module.exports = router;

@@ -4,7 +4,8 @@ const usersSlice = createSlice({
     name: 'users',
     initialState: {
         user: null,
-        users: []
+        users: [],
+        notifications: []
     },
     reducers: {
         SetUser: (state, action) => {
@@ -12,9 +13,12 @@ const usersSlice = createSlice({
         },
         SetUsers: (state, action) => {
             state.users = action.payload
+        },
+        SetNotifications: (state, action) => {
+            state.notifications = action.payload
         }
     }
 });
 
-export const {SetUser, SetUsers} = usersSlice.actions;
+export const {SetUser, SetUsers, SetNotifications} = usersSlice.actions;
 export default usersSlice.reducer;

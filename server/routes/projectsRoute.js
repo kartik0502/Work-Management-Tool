@@ -123,7 +123,6 @@ router.post('/delete-project', authMiddleware, async (req, res) => {
     }
 });
 
-module.exports = router;
 
 // add a member to a project
 
@@ -137,7 +136,7 @@ router.post('/add-member', authMiddleware, async (req, res) => {
                 message: 'User not found!'
             });
         }
-    
+        
         const project = await Project.findByIdAndUpdate(projectId, {
             $push: {
                 members: {
@@ -146,7 +145,7 @@ router.post('/add-member', authMiddleware, async (req, res) => {
                 }
             }
         });
-
+        
         res.send({
             success: true,
             message: 'Member added successfully',
@@ -161,3 +160,26 @@ router.post('/add-member', authMiddleware, async (req, res) => {
         });
     }
 });
+
+// remove a member from a project
+
+router.post('/remove-member', authMiddleware, async (req, res) => {
+    try{
+        const project = await Project.findById(req.body.projectId);
+        console.log(project);
+        project.members.pull(req.body.memberId);
+        await project.save();
+        res.send({
+            success: true,
+            message: 'Member removed successfully'
+        });
+    }
+    catch(err){
+        res.send({
+            success: false,
+            message: err.message
+        });
+    }
+});
+
+module.exports = router;
