@@ -11,3 +11,7 @@ export const getNotifications = async () => {
 export const markNotificationAsRead = async () => {
     return apiRequest( '/api/notifications/mark-as-read', 'post');
 }
+
+export const deleteNotification = async () => {
+    return apiRequest( '/api/notifications/delete-all', 'delete');
+}

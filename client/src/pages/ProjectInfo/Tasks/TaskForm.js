@@ -4,6 +4,7 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { SetLoading } from '../../../redux/loadersSlice'
 import { createTask, updateTask } from '../../../apicalls/tasks'
+import { addNotification } from '../../../apicalls/notifications'
 
 function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
     const {user} = useSelector(state => state.users)
@@ -14,6 +15,8 @@ function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
     const onFinish = async (values) => {
         try{
             let response = null;
+            const assignedTo = project.members.find(member => member.user.email === email)
+            const assignedToUserId = assignedTo.user._id
             dispatch(SetLoading(true))
             if(task){
                 response = await updateTask({
@@ -24,9 +27,6 @@ function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
                 })
             }
             else{
-                const assignedTo = project.members.find(member => member.user.email === email)
-                const assignedToUserId = assignedTo.user._id
-
                 const assignedBy = user._id
                 response = await createTask({
                     ...values,
@@ -37,6 +37,18 @@ function TaskForm({showTaskForm, setShowTaskForm, project, task, reloadData}) {
             }
             dispatch(SetLoading(false))
             if(response.success){
+
+                if(!task){
+                     // send notification to the assigned employee
+                    addNotification({
+                        user: assignedToUserId,
+                        title: `You have been assigned a new task in ${project.name}`,
+                        onclick: `/project/${project._id}`,
+                        description: values.description,
+                    })
+
+                }
+
                 reloadData()
                 message.success(response.message)
                 setShowTaskForm(false)

@@ -65,4 +65,25 @@ router.post('/mark-as-read', authMiddleware, async (req, res) => {
     }
 });
 
+// delete all notification  
+
+router.delete('/delete-all', authMiddleware, async (req, res) => {
+    try {
+        await notification.deleteMany({
+            user: req.body.userId
+        });
+
+        res.send({
+            success: true,
+            message: 'Notifications deleted successfully'
+        });
+    }
+    catch (err) {
+        res.send({
+            error: err.message,
+            success: false
+        })
+    }
+});
+
 module.exports = router;

@@ -131,7 +131,7 @@ function Tasks({ project }) {
               status : e.target.value
             })
           }}
-          disabled = {record.assignedTo._id !== user._id && isEmployee}
+          disabled = {record.assignedTo._id !== user._id}
           >
             <option value="pending">Pending</option>
             <option value="in-progress">In Progress</option>
