@@ -1,5 +1,5 @@
 import { Button, Divider, Modal, Table, message } from 'antd'
-import React from 'react'
+import React, { useEffect } from 'react'
 import TaskForm from './TaskForm'
 import { deleteTasks, fetchTasks, updateTask } from '../../../apicalls/tasks'
 import { SetLoading } from '../../../redux/loadersSlice'
@@ -10,6 +10,12 @@ import { addNotification } from '../../../apicalls/notifications'
 
 
 function Tasks({ project }) {
+  const [filters, setFilters] = React.useState({
+    status: 'all',
+    assignedBy: 'all',
+    assignedTo: 'all'
+  });
+
   const [showViewTask, setShowViewTask] = React.useState(false)
   const [showTaskForm, setShowTaskForm] = React.useState(false)
   const [tasks, setTasks] = React.useState([])
@@ -24,8 +30,10 @@ function Tasks({ project }) {
     try {
       dispatch(SetLoading(true))
       const response = await fetchTasks({
-        projectId: project._id
+        projectId: project._id,
+        ...filters
       })
+      console.log(response)
       dispatch(SetLoading(false))
       if (response.success) {
         setTasks(response.data)
@@ -164,12 +172,68 @@ function Tasks({ project }) {
     },
   ];
 
+  useEffect(() => {
+    getTasks();
+  }, [filters])
 
   return (
     <>
       {!isEmployee && <div className='flex justify-end'>
         <Button type='primary' onClick={() => setShowTaskForm(true)}> Add Task </Button>
       </div>}
+
+      <div className="flex gap-5">
+        <div>
+          <span className='font-semibold'>Status : </span>
+          <select
+          value={filters.status}
+          onChange={(e) => setFilters({
+            ...filters,
+            status: e.target.value,
+
+          })}
+          >
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div>
+          <span className='font-semibold'>Assigned By : </span>
+          <select
+          value={filters.assignedBy}
+          onChange={(e) => setFilters({
+            ...filters,
+            assignedBy: e.target.value
+          })}
+          >
+            <option value="all">All</option>
+            {
+              project.members.filter((m) => m.role === "admin" || m.role === "Owner").map(member => (
+                <option value={member.user._id}>{member.user.firstName} {member.user.lastName}</option>
+              ))
+            }
+          </select>
+        </div>
+        <div>
+          <span className='font-semibold'>Assigned To : </span>
+          <select
+          value={filters.assignedTo}
+          onChange={(e) => setFilters({
+            ...filters,
+            assignedTo: e.target.value
+          })}
+          >
+            <option value="all">All</option>
+            {
+              project.members.filter((m) => m.role === "employee").map(member => (
+                <option value={member.user._id}>{member.user.firstName} {member.user.lastName}</option>
+              ))
+            }
+          </select>
+        </div>
+      </div>
 
       <Table columns={columns} dataSource={tasks}
         className='mt-5'

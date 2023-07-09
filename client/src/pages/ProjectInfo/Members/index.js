@@ -6,6 +6,7 @@ import { SetLoading } from '../../../redux/loadersSlice'
 import { removeMember } from '../../../apicalls/projects'
 
 function Members({ project, reloadData }) {
+  const [role, setRole] = React.useState('')
   const [showMemberForm, setShowMemberForm] = React.useState(false)
   const { user } = useSelector(state => state.users)
   const dispatch = useDispatch();
@@ -86,8 +87,20 @@ function Members({ project, reloadData }) {
           >Add Member
           </Button>
         }
+
       </div>
-      <Table columns={columns} dataSource={project.members} />
+      <div className='mb-4'>
+          <span className="text-gray-500 mr-2">Select Role: </span>
+          <select className="border border-gray-300 rounded-md px-2 py-1 w-60" value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="">All</option>
+            <option value="Owner">Owner</option>
+            <option value="admin">Admin</option>
+            <option value="member">Member</option>
+          </select>
+      </div>
+      <Table columns={columns} dataSource={
+        role ? project.members.filter(member => member.role === role) : project.members
+      } />
       {showMemberForm && <MemberForm showMemberForm={showMemberForm} setShowMemberForm={setShowMemberForm} reloadData={reloadData} project={project} />}
     </div>
   )
